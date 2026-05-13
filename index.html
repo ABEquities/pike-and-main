@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pike & Main — Community Survey</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --navy: #1a2744;
+    --gold: #c9a84c;
+    --cream: #f5f0e8;
+    --light-gold: #e8d5a3;
+    --text: #1a1a1a;
+    --text-muted: #666;
+    --text-hint: #999;
+    --bg: #ffffff;
+    --bg-secondary: #f8f7f4;
+    --border: rgba(0,0,0,0.12);
+    --border-hover: rgba(0,0,0,0.25);
+    --radius: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: #f0ede8;
+      --text-muted: #aaa;
+      --text-hint: #666;
+      --bg: #1a1a1a;
+      --bg-secondary: #242424;
+      --border: rgba(255,255,255,0.1);
+      --border-hover: rgba(255,255,255,0.25);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-secondary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 48px;
+  }
+
+  .survey {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .brand {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .brand .amp { color: var(--gold); font-style: italic; }
+
+  .brand-rule {
+    width: 48px;
+    height: 1.5px;
+    background: var(--gold);
+    margin: 12px auto 10px;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+    letter-spacing: 3.5px;
+    color: var(--light-gold);
+    text-transform: uppercase;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { padding: 0 2px; }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    padding: 24px;
+  }
+
+  /* ── STEPS ── */
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .question {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* ── CHOICES ── */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: var(--bg);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .choice:hover { border-color: var(--gold); background: var(--bg-secondary); }
+  .choice:active { transform: scale(0.99); }
+
+  .choice.selected {
+    border: 1.5px solid var(--gold);
+    background: var(--bg-secondary);
+  }
+
+  .choice-box {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--border-hover);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    background: var(--bg);
+  }
+
+  .choice.selected .choice-box {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .choice.selected .choice-box::after {
+    content: '✓';
+    font-size: 13px;
+    color: var(--navy);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Radio style for single-select */
+  .choice.radio .choice-box { border-radius: 50%; }
+  .choice.radio.selected .choice-box::after { content: ''; width: 8px; height: 8px; background: var(--navy); border-radius: 50%; display: block; }
+
+  .choice-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ── TEXTAREA ── */
+  textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    min-height: 110px;
+    margin-bottom: 24px;
+    outline: none;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  textarea:focus { border-color: var(--gold); }
+  textarea::placeholder { color: var(--text-hint); }
+
+  /* ── TEXT INPUTS ── */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .input-row label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .input-row input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-row input:focus { border-color: var(--gold); }
+  .input-row input::placeholder { color: var(--text-hint); }
+
+  /* ── NAV ── */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn {
+    padding: 11px 22px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--navy);
+    transition: all 0.15s;
+    font-family: inherit;
+    letter-spacing: 0.2px;
+  }
+
+  .btn-primary { background: var(--navy); color: var(--cream); }
+  .btn-primary:hover { background: #243660; border-color: #243660; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-back {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: var(--border-hover);
+  }
+  .btn-back:hover { background: var(--bg-secondary); }
+
+  .skip-link {
+    font-size: 12px;
+    color: var(--text-hint);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .skip-link:hover { color: var(--text-muted); }
+
+  /* ── DONE ── */
+  .done-card {
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .done-icon {
+    font-size: 52px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .done-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .done-body {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .done-email {
+    font-size: 13px;
+    color: var(--text-hint);
+  }
+</style>
+</head>
+<body>
+
+<div class="survey">
+
+  <div class="header">
+    <div class="brand">Pike <span class="amp">&</span> Main</div>
+    <div class="brand-rule"></div>
+    <div class="brand-sub">225 Main Street · Claysville, PA</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span id="stepLabel">Question 1 of 4</span>
+      <span id="stepPct">25%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:25%"></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Uses -->
+  <div class="card">
+    <div class="step active" id="step-1">
+      <div class="question">What would you love to see at 225 Main Street?</div>
+      <div class="hint">Select all that apply — we want to hear your vision.</div>
+      <div class="choices" id="uses-choices">
+        <div class="choice" data-val="brewery"><div class="choice-box"></div><div class="choice-text">Brewery / Taproom</div></div>
+        <div class="choice" data-val="coffee"><div class="choice-box"></div><div class="choice-text">Coffee Shop / Café</div></div>
+        <div class="choice" data-val="laundromat"><div class="choice-box"></div><div class="choice-text">Keep the Laundromat</div></div>
+        <div class="choice" data-val="cowork"><div class="choice-box"></div><div class="choice-text">Co-Working / Office Space</div></div>
+        <div class="choice" data-val="health"><div class="choice-box"></div><div class="choice-text">Chiropractor / Health Office</div></div>
+        <div class="choice" data-val="retail"><div class="choice-box"></div><div class="choice-text">Small Retail / Boutique</div></div>
+        <div class="choice" data-val="other"><div class="choice-box"></div><div class="choice-text">Something else</div></div>
+      </div>
+      <div class="nav">
+        <span></span>
+        <button class="btn btn-primary" onclick="goTo(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Ideas -->
+    <div class="step" id="step-2">
+      <div class="question">What's your big idea for this building?</div>
+      <div class="hint">No idea is too big or too small. Claysville needs what you envision.</div>
+      <textarea id="ideas" placeholder="Claysville needs a place to..."></textarea>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(1)">← Back</button>
+        <div class="nav-right">
+          <button class="skip-link" onclick="goTo(3)">Skip</button>
+          <button class="btn btn-primary" onclick="goTo(3)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Tenure -->
+    <div class="step" id="step-3">
+      <div class="question">How long have you lived in or near Claysville?</div>
+      <div class="hint">Helps us understand our community.</div>
+      <div class="choices" id="tenure-choices">
+        <div class="choice radio" data-val="new"><div class="choice-box"></div><div class="choice-text">Less than 2 years</div></div>
+        <div class="choice radio" data-val="few"><div class="choice-box"></div><div class="choice-text">2–10 years</div></div>
+        <div class="choice radio" data-val="long"><div class="choice-box"></div><div class="choice-text">10 or more years</div></div>
+        <div class="choice radio" data-val="born"><div class="choice-box"></div><div class="choice-text">Born and raised here</div></div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(2)">← Back</button>
+        <div class="nav-right">
+          <button class="skip-link" onclick="goTo(4)">Skip</button>
+          <button class="btn btn-primary" onclick="goTo(4)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Contact -->
+    <div class="step" id="step-4">
+      <div class="question">Stay in the loop</div>
+      <div class="hint">Optional — we'll reach out with updates. Your info is never shared.</div>
+      <div class="input-group">
+        <div class="input-row">
+          <label for="inp-name">Name</label>
+          <input id="inp-name" type="text" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="input-row">
+          <label for="inp-phone">Phone</label>
+          <input id="inp-phone" type="tel" placeholder="(724) 555-0100" autocomplete="tel">
+        </div>
+        <div class="input-row">
+          <label for="inp-email">Email</label>
+          <input id="inp-email" type="email" placeholder="you@email.com" autocomplete="email">
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goTo(3)">← Back</button>
+        <button class="btn btn-primary" onclick="finish()">Submit →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done -->
+  <div class="done-card" id="done-card" style="display:none;">
+    <i class="ti ti-circle-check done-icon" aria-hidden="true"></i>
+    <div class="done-title">Thank you!</div>
+    <p class="done-body">Your voice matters. We'll be in touch as Pike & Main takes shape — 225 Main Street is going to be something Claysville is proud of.</p>
+    <div class="done-email">info.abequities@gmail.com</div>
+  </div>
+
+</div>
+
+<script>
+  var TOTAL = 4;
+
+  document.querySelectorAll('#uses-choices .choice').forEach(function(el) {
+    el.addEventListener('click', function() { el.classList.toggle('selected'); });
+  });
+
+  document.querySelectorAll('#tenure-choices .choice').forEach(function(el) {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('#tenure-choices .choice').forEach(function(x) { x.classList.remove('selected'); });
+      el.classList.add('selected');
+    });
+  });
+
+  function goTo(n) {
+    document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+    var target = document.getElementById('step-' + n);
+    if (target) target.classList.add('active');
+    var pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('stepLabel').textContent = 'Question ' + n + ' of ' + TOTAL;
+    document.getElementById('stepPct').textContent = pct + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function finish() {
+    document.querySelector('.card').style.display = 'none';
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('done-card').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
