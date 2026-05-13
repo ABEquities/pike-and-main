@@ -475,10 +475,40 @@
   }
 
   function finish() {
-    document.querySelector('.card').style.display = 'none';
-    document.getElementById('progressWrap').style.display = 'none';
-    document.getElementById('done-card').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    var uses = [];
+    document.querySelectorAll('#uses-choices .choice.selected').forEach(function(el) {
+      uses.push(el.querySelector('.choice-text').textContent.trim());
+    });
+    var tenure = '';
+    var tenureEl = document.querySelector('#tenure-choices .choice.selected');
+    if (tenureEl) tenure = tenureEl.querySelector('.choice-text').textContent.trim();
+
+    var data = {
+      'Uses Selected': uses.length ? uses.join(', ') : 'None selected',
+      'Ideas': document.getElementById('ideas').value || '',
+      'Time in Claysville': tenure || 'Not answered',
+      'Name': document.getElementById('inp-name').value || '',
+      'Phone': document.getElementById('inp-phone').value || '',
+      'Email': document.getElementById('inp-email').value || ''
+    };
+
+    fetch('https://formspree.io/f/xrejdqno', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) {
+      document.querySelector('.card').style.display = 'none';
+      document.getElementById('progressWrap').style.display = 'none';
+      document.getElementById('done-card').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(function() {
+      document.querySelector('.card').style.display = 'none';
+      document.getElementById('progressWrap').style.display = 'none';
+      document.getElementById('done-card').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 </script>
 </body>
